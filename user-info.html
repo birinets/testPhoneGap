@@ -1,0 +1,169 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>Contest anywhere</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.mobile.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.mobile.structure.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.mobile.theme.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/application.css" />
+
+	<script type="text/javascript" src="scripts/utils.js"></script>
+	<script type="text/javascript" src="scripts/jquery.min.js"></script>
+	<script type="text/javascript">
+		$(document).bind("mobileinit", function () {
+			$.support.cors = true;
+			$.mobile.allowCrossDomainPages = true;
+		});
+	</script>
+	<script type="text/javascript" src="scripts/jquery.mobile.min.js"></script>
+	<script type="text/javascript" src="scripts/detectmobilebrowser.js"></script>
+</head>
+<body>
+	<div id="profile-info-page" data-role="page">
+		<header data-role="header">
+			<a href="#" data-ajax="false" data-rel="back" data-icon="back" data-theme="b" data-iconpos="notext" class="sign-out-btn">Back</a>
+			<h1>My info</h1>
+		</header>
+		<section data-role="content">
+			<form id="user-info-form">
+				<ul id="user-field-list" data-role="listview" data-inset="true">
+				</ul>
+			</form>
+		</section>
+		<footer data-role="footer" data-position="fixed">
+			<div data-role="navbar">
+				<ul>
+					<li>
+						<a href="index.html#play" data-ajax="false" data-iconpos="top" data-icon="grid">Play</a>
+					</li>
+					<li>
+						<a href="index.html#win" data-ajax="false" data-iconpos="top" data-icon="forward">Win</a>
+					</li>
+					<li>
+						<a href="index.html#profile" data-ajax="false" data-iconpos="top" data-icon="info" class="ui-btn-active ui-state-persist">Profile</a>
+					</li>
+				</ul>
+			</div>
+		</footer>
+	</div>
+
+	<script type="text/javascript" src="scripts/jquery-tmpl.min.js"></script>
+	<script id="user-data-tmpl" type="text/x-jquery-tmpl">
+		<li data-role="list-divider">
+			<span>General</span>
+		</li>
+		<li data-role="fieldcontain">
+			<label for="user-name">Login:</label>
+			<input type="text" name="username" id="user-name" value="${userName}" readonly="readonly" class="custom" />
+		</li>
+		<li data-role="fieldcontain">
+			<label for="email">Email:</label>
+			<input type="email" name="email" id="email" value="${email}" placeholder="Type an email..." required="required" />
+		</li>
+		<li data-role="list-divider">
+			<span>Personal</span>
+		</li>
+		<li data-role="fieldcontain">
+			<label for="first-name">First name:</label>
+			<input type="text" name="firstname" id="first-name" value="${firstName}" placeholder="Type a first name..." required="required" />
+		</li>
+		<li data-role="fieldcontain">
+			<label for="last-name">Last name:</label>
+			<input type="text" name="lastname" id="last-name" value="${lastName}" placeholder="Type a last name..." required="required" />
+		</li>
+		<li data-role="fieldcontain">
+			<label for="phone">Phone:</label>
+			<input type="tel" name="phone" id="phone" value="${phone}" placeholder="Type a phone..." />
+		</li>
+		<li data-role="fieldcontain">
+			<label for="gender">Gender:</label>
+			<select name="gender" id="gender" data-role="slider">
+				<option value="true" ${$item.isGenderSelected(true)}>Male</option>
+				<option value="false" ${$item.isGenderSelected(false)}>Female</option>
+			</select>
+		</li>
+		<li data-role="list-divider">
+			<span>Location</span>
+		</li>
+		<li data-role="fieldcontain">
+			<label for="postal-code">Postal code:</label>
+			<input type="text" name="postalcode" id="postal-code" value="${zip}" placeholder="Type a postal code..." />
+		</li>
+		<li data-role="fieldcontain">
+			<label for="address-1">Address 1:</label>
+			<input type="text" name="address1" id="address-1" value="${address1}" placeholder="Type an address 1..." />
+		</li>
+		<li data-role="fieldcontain">
+			<label for="address-2">Address 2:</label>
+			<input type="text" name="address2" id="address-2" value="${address2}" placeholder="Type an address 2..." />
+		</li>
+		<li data-role="fieldcontain">
+			<label for="city">City:</label>
+			<input type="text" name="city" id="city" value="${city}" placeholder="Type a city..." />
+		</li>
+		<li data-role="fieldcontain">
+			<label for="state">State:</label>
+			<input type="text" name="state" id="state" value="${state}" placeholder="Type a state..." />
+		</li>
+		<li data-role="fieldcontain">
+			<label for="country">Country:</label>
+			<input type="text" name="country" id="country" value="${country}" placeholder="Type a country..." />
+		</li>
+		<li class="ui-grid-solo">
+			<button id="save-data-btn" data-theme="a" data-icon="check">Save</button>
+		</li>
+	</script>
+	<script type="text/javascript">
+		tools.checkAccess();
+
+		$('#profile-info-page').live('pageshow', function () {
+			$.mobile.loading('show');
+			var userId = tools.getUserId();
+			$.getJSON(tools.ApiURI() + '/user/byid/' + userId, function (data) {
+				$('#user-data-tmpl').tmpl(data, {
+					isGenderSelected: function (gender) {
+						return data.gender == gender ? 'selected="selected"' : '';
+					}
+				}).appendTo('#user-field-list');
+				$('#user-field-list').listview('refresh').trigger('create');
+
+				$('#save-data-btn').click(function (e) {
+					e.preventDefault();
+					$.mobile.loading('show');
+					
+					//// Checks whether required fields are entered by user.
+					var isFormValid = true;
+					$('input[required]').each(function (index, element) {
+						isFormValid = element && element.value != '';
+						if (isFormValid == false) {
+							element.focus();
+						}
+					});
+					
+					//// Warn user that not all required data is entered.
+					if (isFormValid == false) {
+						$.mobile.loading('hide');
+						alert('Required fields are not entered');
+						return;
+					}
+					
+					$.ajax(tools.ApiURI() + '/user/update', {
+						type: 'PUT',
+						data: $('#user-info-form').serialize() + '&id=' + tools.getUserId(),
+						complete: function () {
+							$.mobile.loading('hide');
+
+							alert('Your information has been updated.');
+							window.location.href = 'index.html#profile';
+						}
+					});
+				});
+
+				$.mobile.loading('hide');
+			});
+		});
+	</script>
+</body>
+</html>

@@ -1,0 +1,143 @@
+﻿body, input, textarea, select, button {
+	font-family: Helvetica, Arial, san-serif;
+}
+
+.ui-body-c, .ui-overlay-c {
+	color: #333 /*{c-body-color}*/;
+	text-shadow: 0 /*{c-body-shadow-x}*/ 1px /*{c-body-shadow-y}*/ 0 /*{c-body-shadow-radius}*/ white /*{c-body-shadow-color}*/;
+}
+
+.ui-body-c, .ui-overlay-c {
+	color: #333 /*{c-body-color}*/;
+	text-shadow: 0 /*{c-body-shadow-x}*/ 1px /*{c-body-shadow-y}*/ 0 /*{c-body-shadow-radius}*/ white /*{c-body-shadow-color}*/;
+}
+
+	.ui-body-c, .ui-body-c input, .ui-body-c select, .ui-body-c textarea, .ui-body-c button {
+		font-family: Helvetica, Arial, sans-serif /*{global-font-family}*/;
+	}
+
+ul {
+	margin: 0;
+	padding-left: 0;
+}
+
+	ul li {
+		list-style: none;
+		padding: .5em 0;
+		margin: 0;
+		border-bottom: 1px solid #E3E3E3;
+	}
+
+.text-bold {
+	font-weight: bold;
+}
+
+.label {
+	width: 125px;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	display: inline-block;
+	overflow: hidden;
+}
+
+.required {
+}
+
+.sign-out-btn {
+}
+
+.validate {
+}
+
+.ui-state-persist {
+}
+
+.nav-glyphish .ui-btn .ui-icon {
+	width: 30px!important;
+	height: 30px!important;
+	margin-left: -15px !important;
+	box-shadow: none!important;
+	-moz-box-shadow: none!important;
+	-webkit-box-shadow: none!important;
+	-webkit-border-radius: 0 !important;
+	border-radius: 0 !important;
+}
+
+#near-by-btn .ui-icon {
+	background: transparent url('../images/07-map-marker.png') no-repeat center center;
+}
+
+#play-my-favorites-btn .ui-icon, #my-profile-my-favorites-btn .ui-icon {
+	background: transparent url('../images/28-star.png') no-repeat center center;
+}
+
+#by-name-btn .ui-icon {
+	background: transparent url('../images/06-magnify.png') no-repeat center center;
+}
+
+#featured-btn .ui-icon {
+	background: transparent url('../images/124-bullhorn.png') no-repeat center center;
+}
+
+#ongoing-btn .ui-icon {
+	background: transparent url('../images/104-index-cards.png') no-repeat center center;
+}
+
+#won-btn .ui-icon {
+	background: transparent url('../images/139-flags.png') no-repeat center center;
+}
+
+#my-prizes-btn .ui-icon {
+	background: transparent url('../images/85-trophy.png') no-repeat center center;
+}
+
+#leader-board-btn .ui-icon {
+	background: transparent url('../images/122-stats.png') no-repeat center center;
+}
+
+#info-btn .ui-icon {
+	background: transparent url('../images/111-user.png') no-repeat center center;
+}
+
+#settings-btn .ui-icon {
+	background: transparent url('../images/106-sliders.png') no-repeat center center;
+}
+
+#badges-btn .ui-icon {
+	background: transparent url('../images/108-badge.png') no-repeat center center;
+}
+
+.map-container {
+	padding: .5em;
+}
+
+	.map-container .map-element {
+		height: 200px;
+		position: relative;
+		overflow: hidden;
+		-webkit-transform: translateZ(0);
+	}
+
+.ui-li-desc img, .ui-li-desc span {
+	vertical-align: middle;
+}
+
+.ui-li-desc img {
+	margin: 0px 5px 0px 0px;
+}
+
+.hidden {
+	display: none;
+}
+
+.text-red {
+	color: #ff0000;
+}
+
+.text-center {
+	text-align: center;
+}
+
+.text-justify {
+	text-align: justify;
+}

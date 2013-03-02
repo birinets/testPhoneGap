@@ -1,0 +1,250 @@
+﻿<!DOCTYPE html>
+<!--[if lt IE 7 ]> <html lang="en" class="no-js ie6"> <![endif]-->
+<!--[if IE 7 ]>    <html lang="en" class="no-js ie7"> <![endif]-->
+<!--[if IE 8 ]>    <html lang="en" class="no-js ie8"> <![endif]-->
+<!--[if IE 9 ]>    <html lang="en" class="no-js ie9"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!-->
+<html lang="en" class="no-js">
+<!--<![endif]-->
+<head>
+	<meta charset="utf-8" />
+	<!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame -->
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+	<!-- Mobile viewport optimized: h5bp.com/viewport -->
+	<meta name="viewport" content="width=device-width">
+
+	<title>Contest Anywhere</title>
+	<!-- remove or comment this line if you want to use the local fonts -->
+	<link href='http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700' rel='stylesheet' type='text/css'>
+
+	<!--<link rel="stylesheet" type="text/css" href="content/css/bootstrap.css">-->
+	<link rel="stylesheet" type="text/css" href="content/css/stylewin-icons.css">
+	<link rel="stylesheet" type="text/css" href="content/css/stylewin.css">
+	<link rel="stylesheet" type="text/css" href="content/css/stylewin-responsive.css">
+	<link rel="stylesheet" type="text/css" href="content/css/metro-ui-dark.css">
+	<link rel="stylesheet" type="text/css" href="content/css/demo.css">
+
+	<link rel="stylesheet" type="text/css" href="content/css/datepicker.css">
+	<!--[if IE 7]>
+   <link rel="stylesheet" type="text/css" href="content/css/stylewin-icons-ie7.css">
+   <![endif]-->
+
+	<!--	<link href="css/jquery.mobile.min.css" rel="stylesheet" />-->
+
+	<!-- All JavaScript at the bottom, except for Modernizr and Respond.
+      Modernizr enables HTML5 elements & feature detects; Respond is a polyfill for min/max-width CSS3 Media Queries
+      For optimal performance, use a custom Modernizr build: www.modernizr.com/download/ -->
+	<script src="scripts-new/modernizr-2.6.2.min.js"></script>
+	<style type="text/css">
+		.ui-slider, .ui-btn-text
+		{
+			display: none;
+		}
+	</style>
+
+</head>
+<body>
+	<!--[if lt IE 7]>
+   <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
+   <![endif]-->
+
+	<!-- Header
+   ================================================== -->
+	<header id="nav-bar" class="container">
+		<div class="row">
+			<div class="span12">
+				<div id="header-container">
+					<a id="backbutton-to-login" class="win-backbutton" href="#"></a>
+					<h5>Contest Anywhere</h5>
+					<div class="dropdown">
+						<a class="header-dropdown dropdown-toggle accent-color" data-toggle="dropdown" href="#">Register
+                     <b class="caret"></b>
+						</a>
+					</div>
+				</div>
+				<div id="top-info" class="pull-right">
+					<!--<hr class="separator pull-right"/>-->
+				</div>
+			</div>
+		</div>
+	</header>
+	<div class="container">
+
+		<div class="row">
+			<div class="span12">
+				<div id="register" data-role="page">
+					<section data-role="content">
+						<div class="row-fluid show-grid2">
+							<!--<form id="register-form" class="validate">-->
+							<form id="register-form" class="form-horizontal bs-docs-example">
+								<input id="storeId" type="hidden" value="2" />
+								<div class="span12 bg-color-red" style="margin: 0 0 15px 0;">
+									<strong class="left white">User Registration</strong>
+								</div>
+								<div class="control-group">
+									<label for="username" class="control-label">User name</label>
+									<div class="controls">
+										<input id="username" name="UserName" type="text" placeholder="User name" required="required" class="input-maximum" />
+									</div>
+								</div>
+								<div class="control-group">
+									<label for="email" class="control-label">Email</label>
+
+									<div class="controls">
+										<input id="email1" name="Email" type="email" placeholder="Email" required="required" class="input-maximum" />
+									</div>
+
+								</div>
+								<div class="control-group">
+									<label for="password" class="control-label">Password</label>
+
+									<div class="controls">
+										<input id="password" name="Password" type="password" placeholder="Password" required="required" class="input-maximum" />
+									</div>
+
+								</div>
+								<div class="control-group">
+									<label for="confirm-password" class="control-label">Confirm password</label>
+
+									<div class="controls">
+										<input id="confirm-password" type="password" placeholder="Confirm password" required="required" class="input-maximum" />
+									</div>
+
+								</div>
+
+								<div class="control-group" id="legalese" style="display: none;">
+									<h2>Terms of Use</h2>
+									<p>
+										Agreement between Your Inc  and My Inc., and its affiliates and subsidiaries (collectively "MY"). This web site is offered
+			to you, the User, conditioned upon your acceptance without modification of the terms, conditions and notices contained herein
+			("Terms"). Your use of this web site constitutes your agreement to all such terms, conditions and notices.
+									</p>
+									<h3>Description of Services</h3>
+									<p>
+										MY provides you with access to a variety of resources, including developer tools, download areas, communication forums and
+			product information (collectively "Services"). The Services, including any updates, enhancements, new features, and/or the
+			addition of any related web properties, are subject to the Terms.
+									</p>
+									<h3>Copyright Notice</h3>
+									<p>Any rights not expressly granted herein are reserved.</p>
+								</div>
+
+								<div class="control-group">
+									<table style="width: 200px;">
+										<tr>
+											<td style="float: left;">
+												<input type="checkbox" id="agree-terms-conditions" required="required" value="I agree" style="margin: 0px;" />
+											</td>
+											<td style="float: left;">
+												<label class="control-label">&nbsp;I agree</label>
+											</td>
+										</tr>
+									</table>
+								</div>
+
+								<div class="control-group">
+									<a id="action-register-with-store" class="btn-primary btn">Register</a>
+								</div>
+							</form>
+						</div>
+					</section>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+
+	<!-- Grab Google CDN's jQuery. fall back to local if necessary -->
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+	<script>window.jQuery || document.write("<script src='scripts-new/jquery-1.8.3.min.js'>\x3C/script>")</script>
+
+	<script type="text/javascript" src="scripts-new/google-code-prettify/prettify.js"></script>
+	<script type="text/javascript" src="scripts-new/bootstrap.min.js"></script>
+	<script type="text/javascript" src="scripts-new/stylewin-panorama.js"></script>
+	<script type="text/javascript" src="scripts-new/stylewin-pivot.js"></script>
+	<script type="text/javascript" src="scripts-new/stylewin-charms.js"></script>
+	<script type="text/javascript" src="scripts-new/bootstrap-datepicker.js"></script>
+	<!--<script type="text/javascript" src="scripts-new/jquery.nicescroll.js"></script>-->
+	<script type="text/javascript" src="scripts-new/jquery.touchSwipe.js"></script>
+	<script type="text/javascript" src="scripts-new/demo.js"></script>
+	<script type="text/javascript" src="scripts-new/holder.js"></script>
+	<script type="text/javascript">
+		$('.panorama').panorama({
+			nicescroll: false,
+			showscrollbuttons: true,
+			keyboard: true
+		});
+
+		$('#pivot').pivot();
+	</script>
+
+	<script type="text/javascript" src="scripts-app/jquery.mobile.min.js"></script>
+	<script type="text/javascript" src="scripts-app/detectmobilebrowser.js"></script>
+	<script type="text/javascript" src="scripts-app/jquery-tmpl.min.js"></script>
+
+
+	<script type="text/javascript" src="scripts-app/utils.js"></script>
+	<script type="text/javascript" src="scripts-app/application.js"></script>
+
+	<script type="text/javascript">
+
+		$('#action-register-with-store').click(function () {
+			//$.mobile.loading('show');
+			var parsedUrl = $.mobile.path.parseUrl(window.location.href);
+			var storeId = parseInt(parsedUrl.search.replace('?', '').split('=')[1]);
+
+			$.post(tools.ApiURI() + '/user/RegisterWithStore/?storeId=' + storeId, $('#register-form').serialize())
+				.success(function (data) {
+					var user = $('#username').val();
+					var password = $('#password').val();
+					$.ajax({
+						url: tools.ApiURI() + '/user/validate?pass=' + password + '&name=' + user,
+						dataType: 'json',
+						success: function (data1, stextSatus, jqXhr) {
+							if (!(data1.isMasterAdmin == true || data1.isStoreAdmin == true)) {
+								window.sessionStorage.setItem('username', data1.userName);
+								window.sessionStorage.setItem('userid', data1.id);
+								window.location.replace(jqXhr.getResponseHeader('Uri'));
+							}
+							else {
+								window.location.replace("index.html");
+							}
+						},
+						error: function (jqXhr) {
+							alert('User name or password is not valid!!')
+						},
+						complete: function () {
+
+						}
+					})
+						.error(function () {
+							alert('error!');
+						});
+				});
+		});
+
+	</script>
+
+	<script type="text/javascript" charset="utf-8" src="http://cdn.sencha.io/ext-4.1.0-gpl/ext-all.js"></script>
+	<script type="text/javascript" charset="utf-8" src="Scripts/registration.js"></script>
+	<script type="text/javascript" charset="utf-8">
+		Ext.onReady(function () {
+			Ext.tip.QuickTipManager.init();
+
+			Ext.create('kelloggs.ux.RegistrationForm', {
+				title: 'User registration',
+				renderTo: Ext.getBody(),
+				collapsible: true,
+				postUrl: tools.ApiURI() + '/user/register',
+				onSuccess: function (response) {
+					console.log(response);
+				},
+				onError: function (response) {
+					console.log(response);
+				},
+			});
+		});
+	</script>
+</body>
+</html>

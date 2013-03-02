@@ -1,0 +1,186 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>Contest anywhere</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.mobile.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.mobile.structure.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.mobile.theme.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/application.css" />
+</head>
+<body>
+	<div id="user-favorites-page" data-role="page" data-loaded="false">
+		<header data-role="header">
+			<a href="#" data-ajax="false" data-rel="back" data-icon="back" data-theme="b" data-iconpos="notext" class="sign-out-btn">
+				Back</a>
+			<h1>My favorites</h1>
+		</header>
+		<section data-role="content">
+			<div id="top-navigation" data-role="navbar" data-id="user-favorites">
+				<ul>
+					<li><a href="#" data-theme="a" class="ui-btn ui-btn-active ui-state-persist">Stores</a></li>
+					<li><a href="#" data-theme="a" class="ui-btn">Categories</a></li>
+				</ul>
+			</div>
+		</section>
+		<section id="account-list-container" data-role="content">
+			<div id="account-list" data-role="collapsible-set">
+			</div>
+		</section>
+		<section id="category-list-container" data-role="content" style="display: none;">
+			<fieldset id="category-list" data-role="controlgroup">
+				<legend></legend>
+			</fieldset>	
+		</section>
+		<footer data-role="footer" data-position="fixed">
+			<div data-role="navbar">
+				<ul>
+					<li>
+						<a href="index.html#play" data-ajax="false" data-iconpos="top" data-icon="grid">Play</a>
+					</li>
+					<li>
+						<a href="index.html#win" data-ajax="false" data-iconpos="top" data-icon="forward">Win</a>
+					</li>
+					<li>
+						<a href="index.html#profile" data-ajax="false" data-iconpos="top" data-icon="info" class="ui-btn-active ui-state-persist">Profile</a>
+					</li>
+				</ul>
+			</div>
+		</footer>
+	</div>
+
+	<script type="text/javascript" src="scripts/jquery.min.js"></script>
+	<script type="text/javascript" src="scripts/utils.js"></script>
+	<script type="text/javascript">
+		$(document).bind("mobileinit", function () {
+			$.support.cors = true;
+			$.mobile.allowCrossDomainPages = true;
+		});
+	</script>
+	<script type="text/javascript" src="scripts/jquery.mobile.min.js"></script>
+	<script type="text/javascript" src="scripts/utils.js"></script>
+	<script type="text/javascript" src="scripts/detectmobilebrowser.js"></script>
+	<script type="text/javascript" src="scripts/jquery-tmpl.min.js"></script>
+	<script id="account-item-tmpl" type="text/x-jquery-tmpl">
+		<div id="account-${id}" data-role="collapsible" data-theme="b" data-content-theme="c">
+			<h3>${name}</h3>
+			{{if stores}}
+			<fieldset data-role="controlgroup">
+				<legend></legend>
+				{{each stores}}							
+				<input type="checkbox" store-id="${id}" id="store-${id}" class="custom" ${$item.isUserStore(id)} />
+				<label for="store-${id}">${name}</label>
+				{{/each}}
+			</fieldset>
+			{{/if}}
+		</div>
+	</script>
+	<script id="category-item-tmpl" type="text/x-jquery-tmpl">	
+		<input type="checkbox" category-id="${id}" id="category-${id}" class="custom" ${$item.isUserCategory(id)} />
+		<label for="category-${id}">${name}</label>
+	</script>
+	<script type="text/javascript">
+		tools.checkAccess();
+
+		$('#user-favorites-page').live('pageinit', function () {
+			$.when(
+				$.getJSON(tools.ApiURI() + '/user/FavoriteStores?userId=' + tools.getUserId()),
+				$.getJSON(tools.ApiURI() + '/account/get'),
+				$.getJSON(tools.ApiURI() + '/user/favoritecategory?userId=' + tools.getUserId()),
+				$.getJSON(tools.ApiURI() + '/category/get')
+			).done(function (favoriteStoreResponse, accountResponse, favoriteCategoryResponse, categoryResponse) {
+				var favoriteStores = favoriteStoreResponse[0];
+				var accounts = accountResponse[0];
+				$('#account-item-tmpl').tmpl(accounts, {
+					isUserStore: function (storeId) {
+						if (favoriteStores) {
+							for (var i = 0; i < favoriteStores.length; i++) {
+								if (favoriteStores[i].id == storeId) {
+									return 'checked';
+								}
+							}
+						}
+
+						return '';
+					}
+				}).appendTo('#account-list');
+				$('#user-favorites-page').trigger('create');
+				//// Binds "Change" event for store check boxes.
+				$('input[id^=store]').change(function () {
+					$.mobile.loading('show');
+
+					var ajaxMethod = $(this).attr('checked') !== undefined ? 'POST' : 'DELETE';
+					$.ajax({
+						url: tools.ApiURI() + '/user/favoritestores',
+						type: ajaxMethod,
+						data: { userId: tools.getUserId(), storeId: $(this).attr('store-id') },
+						error: function (jqXhr, textStatus, errorThrown) {
+							console.log(textStatus);
+							console.log(errorThrown);
+							alert('Error occurred!');
+						},
+						complete: function () {
+							$.mobile.loading('hide');
+						}
+					});
+				});
+
+				var favoriteCategories = favoriteCategoryResponse[0];
+				var categories = categoryResponse[0];
+				$('#category-item-tmpl').tmpl(categories, {
+					isUserCategory: function (categoryId) {
+						if (favoriteCategories) {
+							for (var i = 0; i < favoriteCategories.length; i++) {
+								if (favoriteCategories[i].id == categoryId) {
+									return 'checked';
+								}
+							}
+						}
+
+						return '';
+					}
+				}).appendTo('#category-list');
+				$('#user-favorites-page').trigger('create').attr('data-loaded', 'true');
+				$('#category-list').controlgroup('refresh');
+				//// Binds "Change" event for category check boxes.
+				$('input[id^=category]').change(function () {
+					$.mobile.loading('show');
+
+					var ajaxMethod = $(this).attr('checked') !== undefined ? 'POST' : 'DELETE';
+					$.ajax({
+						url: tools.ApiURI() + '/user/favoritecategories',
+						type: ajaxMethod,
+						data: { userId: tools.getUserId(), categoryId: $(this).attr('category-id') },
+						error: function (jqXhr, textStatus, errorThrown) {
+							console.log(textStatus);
+							console.log(errorThrown);
+							alert('Error occurred!');
+						},
+						complete: function () {
+							$.mobile.loading('hide');
+						}
+					});
+				});
+
+				//// Binds necessary events.
+				$('.ui-btn', $('#top-navigation')).click(function () {
+					$('#account-list-container').toggle();
+					$('#category-list-container').toggle();
+				});
+
+				$.mobile.loading('hide');
+			});
+		});
+
+		$('#user-favorites-page').live('pageshow', function () {
+			var currentPage = $('#user-favorites-page');
+			if (currentPage.attr('data-loaded') == 'false') {
+				$.mobile.loading('show');
+			} else {
+				currentPage.trigger('create');
+			}
+		});
+	</script>
+</body>
+</html>

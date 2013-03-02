@@ -1,0 +1,130 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>Contest anywhere</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.mobile.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.mobile.structure.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.mobile.theme.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.jqplot.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/application.css" />
+</head>
+<body>
+	<div id="contest-stats-page" data-role="page">
+		<header data-role="header">
+			<h1>Statistics</h1>
+		</header>
+		<section data-role="content">
+			<ul id="contest-stats-data"></ul>
+			<div id="question-stats-pies" data-role="collapsible-set"></div>
+			<div class="ui-grid-solo">
+				<div class="ui-block-a">
+					<a data-ajax="false" href="index.html#play" data-role="button" data-theme="a">OK</a>
+				</div>
+			</div>
+		</section>
+	</div>
+
+	<script type="text/javascript" src="scripts/jquery.min.js"></script>
+	<script type="text/javascript" src="scripts/utils.js"></script>
+	<script type="text/javascript">
+		$(document).bind("mobileinit", function () {
+			$.support.cors = true;
+			$.mobile.allowCrossDomainPages = true;
+		});
+	</script>
+	<script type="text/javascript" src="scripts/jquery.jqplot.min.js"></script>
+	<script type="text/javascript" src="scripts/jqplot.pieRenderer.min.js"></script>
+	<script type="text/javascript" src="scripts/jqplot.donutRenderer.min.js"></script>
+	<script type="text/javascript" src="scripts/jquery.mobile.min.js"></script>
+	<script type="text/javascript" src="scripts/detectmobilebrowser.js"></script>
+	<script type="text/javascript" src="scripts/jquery-tmpl.min.js"></script>
+	<script id="contest-item-tmpl" type="text/x-jquery-tmpl">
+		<li>
+			<label class="label text-bold">Title: </label>
+			<span>${title}</span>
+		</li>
+		{{if category}}
+		<li>
+			<label class="label text-bold">Category: </label>
+			<span>${category.name}</span>
+		</li>
+		{{/if}}
+		{{if prize}}
+		<li>
+			<label class="label text-bold">Prize: </label>
+			<span>${prize.name}</span>
+		</li>
+		{{/if}}
+		{{if closeDate}}
+		<li>
+			<label class="label text-bold">Close date: </label>
+			<span>${$item.formatDate(closeDate)}</span>
+		</li>
+		{{/if}}
+		{{if participated}}
+		<li>
+			<label class="label text-bold">Participations: </label>
+			<span>${participated}</span>
+		</li>
+		{{/if}}
+	</script>
+	<script id="question-item-tmpl" type="text/x-jquery-tmpl">
+		<div id="question-stats-${id}" data-role="collapsible" data-collapsed="${$item.isCollapsed(id)}" data-theme="b" data-content-theme="d">
+			<h3>${text}</h3>
+			<div id="question-stats-pie-${id}" style="height: 500px; max-width: 350px; margin: 0px auto;"></div>
+		</div>
+	</script>
+	<script type="text/javascript">
+		tools.checkAccess();
+
+		$('#contest-stats-page').live('pageinit', function () {
+			$.mobile.loading('show');
+			var parsedUrl = $.mobile.path.parseUrl(window.location.href);
+			var contestId = parseInt(parsedUrl.search.replace('?', '').split('=')[1]);
+
+			$.getJSON(tools.ApiURI() + '/report/OfContest/?Id=' + contestId, function (contestReport) {
+				$('#contest-item-tmpl').tmpl(contestReport, {
+					formatDate: function (dateObj) {
+						return new Date(dateObj).toLocaleDateString();
+					}
+				}).appendTo('#contest-stats-data');
+				$('#question-item-tmpl').tmpl(contestReport.questions, {
+					isCollapsed: function (questionId) {
+						return contestReport.questions && contestReport.questions.length > 0 && contestReport.questions[0].id != questionId;
+					}
+				}).appendTo('#question-stats-pies');
+
+				$.each(contestReport.questions, function (index, question) {
+					var questionStatisticsData = [];
+					if (question.answers && question.answers.length > 0) {
+						for (var i = 0; i < question.answers.length; i++) {
+							questionStatisticsData[i] = [question.answers[i].answer.text, question.answers[i].voteCount];
+						}
+					}
+
+					if (questionStatisticsData.length > 0) {
+						$.jqplot('question-stats-pie-' + question.id, [questionStatisticsData], {
+							seriesDefaults: {
+								renderer: $.jqplot.PieRenderer,
+								rendererOptions: { showDataLabels: true }
+							},
+							legend: { show: true, location: 's' }
+						});
+					}
+
+					$('#question-stats-' + question.id).collapsible({ refresh: true });
+				});
+
+				$('#question-stats-pies').collapsibleset('refresh');
+				$.mobile.loading('hide');
+			});
+		});
+
+		$('#contest-stats-page').live('pageshow', function () {
+			$.mobile.loading('show');
+		});
+	</script>
+</body>
+</html>

@@ -1,0 +1,150 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>Contest anywhere</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.mobile.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.mobile.structure.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.mobile.theme.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/application.css" />
+</head>
+<body>
+	<div id="entity-contests-page" data-role="page">
+		<header data-role="header">
+			<a href="#" data-rel="back" data-icon="back" data-theme="b" data-iconpos="notext">Back</a>
+			<h1 id="entity-header-page"></h1>
+		</header>
+		<section data-role="content">
+			<ul id="contest-list" data-role="listview" data-inset="true">
+			</ul>
+		</section>
+		<footer data-role="footer" data-position="fixed">
+			<div data-role="navbar">
+				<ul>
+					<li>
+						<a href="index.html#play" data-ajax="false" data-iconpos="top" data-icon="grid">Play</a>
+					</li>
+					<li>
+						<a href="index.html#win" data-ajax="false" data-iconpos="top" data-icon="forward">Win</a>
+					</li>
+					<li>
+						<a href="index.html#profile" data-ajax="false" data-iconpos="top" data-icon="info">Profile</a>
+					</li>
+				</ul>
+			</div>
+		</footer>
+	</div>
+
+	<script type="text/javascript" src="scripts/jquery.min.js"></script>
+	<script type="text/javascript" src="scripts/utils.js"></script>
+	<script type="text/javascript">
+		$(document).bind("mobileinit", function () {
+			$.support.cors = true;
+			$.mobile.allowCrossDomainPages = true;
+		});
+	</script>
+	<script type="text/javascript" src="scripts/jquery.mobile.min.js"></script>
+
+	<script type="text/javascript" src="scripts/jquery.ui.map.min.js"></script>
+	<script type="text/javascript" src="scripts/detectmobilebrowser.js"></script>
+	<script type="text/javascript" src="scripts/jquery-tmpl.min.js"></script>
+	<script id="contest-item-tmpl" type="text/x-jquery-tmpl">
+		<li>
+			<a data-ajax="false" href="contest.html?contest=${id}">
+				<h3 class="ui-li-heading">${title}</h3>
+				{{if categories}}
+					{{if categories.length}}
+						<p class="ui-li-desc">
+							<span class="text-bold">Categories: </span>
+							<span>${$item.formatCategories($item.data)}</span>
+						</p>
+					{{/if}}
+				{{/if}}
+				{{if closeDate}}
+				<p class="ui-li-desc">
+					<span class="text-bold">Time remaining: </span>
+					<span>${$item.remained(closeDate)}</span>
+				</p>
+				{{/if}}
+				{{if prize}}				
+				<p class="ui-li-desc">
+					<img src="images/package.png" alt="${prize.name}" />
+					<span>${prize.name}</span>
+				</p>
+				{{/if}}
+			</a>
+		</li>
+	</script>
+	<script type="text/javascript">
+		tools.checkAccess();
+
+		$('#entity-contests-page').live('pageinit', function () {
+			var parsedUrl = $.mobile.path.parseUrl(window.location.href);
+			var entityParts = parsedUrl.search.replace('?', '').split('=');
+			var entityId = parseInt(parsedUrl.search.replace('?', '').split('=')[1]);
+
+			var url = tools.ApiURI() + '/contest/';
+			var userId = tools.getUserId();
+			if (entityParts[0] == 'store') {
+				$('#entity-header-page').text('Store contests');
+				url += 'perstore?storeId=' + entityId + '&userId=' + userId;
+			} else if (entityParts[0] == 'category') {
+				$('#entity-header-page').text('Category contests');
+				url += 'bycategory?categoryId=' + entityId + '&userId=' + userId;
+			}
+
+			$.getJSON(url, function (contests) {				
+				$('#contest-item-tmpl').tmpl(contests, {
+					remained: function (closeDate) {
+						var remainedString = '';
+						var closeDateObj = new Date(closeDate);
+						var today = new Date();
+
+						//// Calculates full days value.
+						var fullDays = parseInt((closeDateObj - today) / 86400000);
+						if (fullDays > 0) {
+							remainedString += fullDays + ' days ';
+						}
+
+						//// Calculates full hours value.
+						var fullHours = parseInt((closeDateObj - today) / 3600000) - fullDays * 24;
+						if (fullHours > 0) {
+							remainedString += fullHours + ' hours ';
+						}
+
+						//// Calculates full minutes value.
+						var fullMinuters = parseInt((closeDateObj - today) / 60000) - fullHours * 60 - fullDays * 1440;
+						if (fullMinuters > 0) {
+							remainedString += fullMinuters + ' minutes';
+						}
+
+						return remainedString;
+					},
+					formatCategories: function (contest) {
+						var categories = '';
+						if (contest.categories != null) {
+							for (var i = 0; i < contest.categories.length; i++) {
+								categories += contest.categories[i].name;
+								if (i < contest.categories.length - 1) {
+									categories += ', ';
+								}
+							}
+						}
+
+						return categories;
+					}
+				}).appendTo('#contest-list');
+
+				$("#contest-list").listview('refresh');
+				$.mobile.loading('hide');
+
+			});
+		});
+
+		$('#entity-contests-page').live('pageshow', function () {
+			$.mobile.loading('show');
+		});
+	</script>
+</body>
+</html>

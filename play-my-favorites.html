@@ -1,0 +1,162 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>Contest anywhere</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.mobile.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.mobile.structure.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.mobile.theme.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/application.css" />
+</head>
+<body>
+	<div id="play-favorites-stores-page" data-role="page" data-loaded="false">
+		<header data-role="header">
+			<a href="#" data-ajax="false" data-rel="back" data-icon="back" data-theme="b" data-iconpos="notext" class="sign-out-btn">Back</a>
+			<h1>My favorites</h1>
+		</header>
+		<section data-role="content">
+			<div data-role="navbar" data-id="user-favorites">
+				<ul>
+					<li><a href="#play-favorites-stores-page" class="ui-btn-active ui-state-persist">Stores</a></li>
+					<li><a href="#play-favorites-categories-page" data-theme="a" data-transition="slide">Categories</a></li>
+				</ul>
+			</div>
+		</section>
+		<section data-role="content">
+			<ul id="store-list" data-role="listview" data-inset="true">
+			</ul>
+		</section>
+		<footer data-role="footer" data-position="fixed">
+			<div data-role="navbar">
+				<ul>
+					<li>
+						<a href="index.html#play" data-ajax="false" data-iconpos="top" data-icon="grid" class="ui-btn-active ui-state-persist">Play</a>
+					</li>
+					<li>
+						<a href="index.html#win" data-ajax="false" data-iconpos="top" data-icon="forward">Win</a>
+					</li>
+					<li>
+						<a href="index.html#profile" data-ajax="false" data-iconpos="top" data-icon="info">Profile</a>
+					</li>
+				</ul>
+			</div>
+		</footer>
+	</div>
+	<div id="play-favorites-categories-page" data-role="page" data-loaded="false">
+		<header data-role="header">
+			<a href="index.html#play" data-ajax="false" data-rel="back" data-icon="back" data-theme="b" data-iconpos="notext" class="sign-out-btn">
+				Back</a>
+			<h1>My favorites</h1>
+		</header>
+		<section data-role="content">
+			<div data-role="navbar" data-id="user-favorites">
+				<ul>
+					<li><a href="#play-favorites-stores-page" data-theme="a" data-transition="slide" data-rel="back">Stores</a></li>
+					<li><a href="#play-favorites-categories-page" class="ui-btn-active ui-state-persist">Categories</a></li>
+				</ul>
+			</div>
+		</section>
+		<section data-role="content">
+			<ul id="category-list" data-role="listview" data-inset="true">
+			</ul>
+		</section>
+		<footer data-role="footer" data-position="fixed">
+			<div data-role="navbar">
+				<ul>
+					<li>
+						<a href="index.html#play" data-ajax="false" data-iconpos="top" data-icon="grid" class="ui-btn-active ui-state-persist">Play</a>
+					</li>
+					<li>
+						<a href="index.html#win" data-ajax="false" data-iconpos="top" data-icon="forward">Win</a>
+					</li>
+					<li>
+						<a href="index.html#profile" data-ajax="false" data-iconpos="top" data-icon="info">Profile</a>
+					</li>
+				</ul>
+			</div>
+		</footer>
+	</div>
+
+	<script type="text/javascript" src="scripts/jquery.min.js"></script>
+	<script type="text/javascript" src="scripts/utils.js"></script>
+	<script type="text/javascript">
+		$(document).bind("mobileinit", function () {
+			$.support.cors = true;
+			$.mobile.allowCrossDomainPages = true;
+		});
+	</script>
+	<script type="text/javascript" src="scripts/jquery.mobile.min.js"></script>
+	<script type="text/javascript" src="scripts/utils.js"></script>
+	<script type="text/javascript" src="scripts/detectmobilebrowser.js"></script>
+	<script type="text/javascript" src="scripts/jquery-tmpl.min.js"></script>
+	<script id="store-item-tmpl" type="text/x-jquery-tmpl">
+		<li>
+			<a data-ajax="false" href="contests.html?store=${id}" class="ui-link-inherit">
+				<h3>${name}</h3>
+			</a>
+		</li>
+	</script>
+	<script id="category-item-tmpl" type="text/x-jquery-tmpl">
+		<li>
+			<a data-ajax="false" href="contests.html?category=${id}" class="ui-link-inherit">
+				<h3>${name}</h3>
+			</a>
+		</li>
+	</script>
+	<script type="text/javascript">
+		tools.checkAccess();
+		
+		$('#play-favorites-stores-page').live('pageinit', function () {
+			$.getJSON(tools.ApiURI() + '/user/FavoriteStores?userId=' + tools.getUserId(), function (stores) {
+				//// Checks whether stores were loaded from the database and render appropriate message if they were not.
+				if (!stores || stores.length == 0) {
+					$('<li />', { 'html': '<h3>You haven’t chosen any store as your favorite. Go to "My favorites" on the Profile tab to choose one or two.</h3>' })
+						.appendTo('#store-list');
+				} else {
+					$('#store-item-tmpl').tmpl(stores).appendTo('#store-list');
+				}
+
+				$('#play-favorites-stores-page').trigger('create').attr('data-loaded', true);
+				$('#store-list').listview('refresh');
+				$.mobile.loading('hide');
+			});
+		});
+
+		$('#play-favorites-stores-page').live('pageshow', function () {
+			var currentPage = $('#play-favorites-stores-page');
+			if (currentPage.attr('data-loaded') == 'false') {
+				$.mobile.loading('show');
+			} else {
+				currentPage.trigger('create');
+			}
+		});
+	</script>
+	<script type="text/javascript">
+		$('#play-favorites-categories-page').live('pageinit', function () {
+			$.getJSON(tools.ApiURI() + '/user/favoritecategory?userId=' + tools.getUserId(), function (categories) {
+				//// Checks whether stores were loaded from the database and render appropriate message if they were not.
+				if (!categories || categories.length == 0) {
+					$('<li />', { 'html': '<h3>You haven’t chosen any category as your favorite. Go to "My favorites" on the Profile tab to choose one or two.</h3>' })
+						.appendTo('#category-list');
+				} else {
+					$('#category-item-tmpl').tmpl(categories).appendTo('#category-list');
+				}
+
+				$('#play-favorites-categories-page').trigger('create').attr('data-loaded', true);
+				$('#category-list').listview('refresh');
+				$.mobile.loading('hide');
+			});
+		});
+
+		$('#play-favorites-categories-page').live('pageshow', function () {
+			var currentPage = $('#play-favorites-categories-page');
+			if (currentPage.attr('data-loaded') == 'false') {
+				$.mobile.loading('show');
+			} else {
+				currentPage.trigger('create');
+			}
+		});
+	</script>
+</body>
+</html>

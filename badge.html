@@ -1,0 +1,94 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>Contest anywhere</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.mobile.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.mobile.structure.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.mobile.theme.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.jqplot.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/application.css" />
+</head>
+<body>
+	<div id="badge-page" data-role="page" data-loaded="false">
+		<header data-role="header">
+			<h1>You have earned a badge</h1>
+		</header>
+		<section id="badge-container" data-role="content">
+			<a id="ok-btn" href="#" data-ajax="false" data-role="button" data-theme="b">OK</a>
+		</section>
+	</div>
+
+	<script type="text/javascript" src="scripts/utils.js"></script>
+	<script type="text/javascript" src="scripts/jquery.min.js"></script>
+	<script type="text/javascript">
+		$(document).bind("mobileinit", function () {
+			$.support.cors = true;
+			$.mobile.allowCrossDomainPages = true;
+		});
+	</script>
+	<script type="text/javascript" src="scripts/jquery.mobile.min.js"></script>
+	<script type="text/javascript" src="scripts/detectmobilebrowser.js"></script>
+	<script type="text/javascript" src="scripts/jquery-tmpl.min.js"></script>
+	<script id="badge-item-tmpl" type="text/x-jquery-tmpl">
+		{{if pictureName}}
+		<div class="text-center">
+			<img src="${$item.formatImage(pictureName)}" alt="${name}" />
+		</div>
+		{{/if}}
+		<h3 class="text-center">${name}</h3>
+		{{if description}}
+		<p class="ui-li-desc text-justify">
+			${description}
+		</p>
+		{{/if}}
+	</script>
+	<script type="text/javascript">
+		$('#badge-page').live('pageinit', function () {
+			var parsedUrl = $.mobile.path.parseUrl(window.location.href);
+			var parsedSearch = parsedUrl.search.substring(1, parsedUrl.search.length);
+			var parsedParts = parsedSearch.split('&');
+			var badgeId = null;
+			var returnUrl = null;
+
+			for (var i = 0; i < parsedParts.length; i++) {
+				if (parsedParts[i].startsWith('id')) {
+					badgeId = parsedParts[i].split('=')[1];
+				} else if (parsedParts[i].startsWith('return')) {
+					returnUrl = decodeURIComponent(parsedParts[i].split('=')[1]);
+				}
+			}
+
+			if (!badgeId || badgeId == '') {
+				alert('Not all parts of required data is specified');
+				return;
+			}
+
+			if (!returnUrl || returnUrl == '') {
+				returnUrl = 'index.html';
+			}
+
+			$('#ok-btn').attr('href', returnUrl);
+			$.getJSON(tools.ApiURI() + '/badge/get?id=' + badgeId, function (badge) {
+				$('#badge-item-tmpl').tmpl(badge, {
+					formatImage: function (imageName) {
+						return imageName && imageName == '' ? '' : 'images/badges/' + imageName;
+					}
+				}).prependTo('#badge-container');
+				$('#badge-page').trigger('create').attr('data-loaded', 'true');
+				$.mobile.loading('hide');
+			});
+		});
+
+		$('#badge-page').live('pageshow', function () {
+			var currentPage = $('#badge-page');
+			if (currentPage.attr('data-loaded') != 'false') {
+				$.mobile.loading('show');
+			} else {
+				currentPage.trigger('create');
+			}
+		});
+	</script>
+</body>
+</html>

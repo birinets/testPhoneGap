@@ -1,0 +1,153 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>Contest anywhere</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.mobile.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.mobile.structure.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.mobile.theme.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/application.css" />
+</head>
+<body>
+	<div id="near-by-page" data-role="page" data-loaded="false">
+		<header data-role="header">
+			<a href="#" data-ajax="false" data-rel="back" data-icon="back" data-theme="b" data-iconpos="notext" class="sign-out-btn">Back</a>
+			<h1>Nearby</h1>
+		</header>
+		<section data-role="content">
+			<div id="top-navigation" data-role="navbar" data-id="play-nearby">
+				<ul>
+					<li><a href="#" data-theme="a" class="ui-btn ui-btn-active ui-state-persist">Stores</a></li>
+					<li><a href="#" data-theme="a" class="ui-btn" data-transition="fade">Categories</a></li>
+				</ul>
+			</div>
+		</section>
+		<section data-role="content">
+			<div class="map-container ui-bar-a ui-corner-all ui-shadow">
+				<div id="store-map-canvas" class="map-element"></div>
+			</div>
+		</section>
+		<section id="store-list-container" data-role="content">
+			<ul id="store-list" data-role="listview" data-inset="true">
+			</ul>
+		</section>
+		<section id="category-list-container" data-role="content" style="display: none;">
+			<ul id="category-list" data-role="listview" data-inset="true">
+			</ul>
+		</section>
+		<footer data-role="footer" data-position="fixed">
+			<div data-role="navbar">
+				<ul>
+					<li>
+						<a href="index.html#play" data-ajax="false" data-iconpos="top" data-icon="grid" class="ui-btn-active ui-state-persist">Play</a>
+					</li>
+					<li>
+						<a href="index.html#win" data-ajax="false" data-iconpos="top" data-icon="forward">Win</a>
+					</li>
+					<li>
+						<a href="index.html#profile" data-ajax="false" data-iconpos="top" data-icon="info">Profile</a>
+					</li>
+				</ul>
+			</div>
+		</footer>
+	</div>
+
+	<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD_gZjtGQL5bh2tJ2Wz_A1EmXcvU84SHj4&sensor=true"></script>
+	<script type="text/javascript" src="scripts/jquery.min.js"></script>
+	<script type="text/javascript" src="scripts/utils.js"></script>
+	<script type="text/javascript">
+		$(document).bind("mobileinit", function () {
+			$.support.cors = true;
+			$.mobile.allowCrossDomainPages = true;
+		});
+	</script>
+	<script type="text/javascript" src="scripts/jquery.mobile.min.js"></script>
+	<script type="text/javascript" src="scripts/jquery.ui.map.min.js"></script>
+	<script type="text/javascript" src="scripts/detectmobilebrowser.js"></script>
+	<script type="text/javascript" src="scripts/jquery-tmpl.min.js"></script>
+	<script id="store-item-tmpl" type="text/x-jquery-tmpl">
+		<li>
+			<a data-ajax="false" href="contests.html?store=${id}" class="ui-link-inherit">
+				<h3>${name}</h3>
+				<p class="ui-li-desc"><strong>Provided by ${accountName}</strong></p>
+				<p class="ui-li-desc">${description}</p>
+			</a>
+		</li>
+	</script>
+	<script id="category-item-tmpl" type="text/x-jquery-tmpl">
+		<li>
+			<a data-ajax="false" href="contests.html?category=${id}" class="ui-link-inherit">
+				<h3>${name}</h3>
+				<p class="ui-li-desc">${description}</p>
+			</a>
+		</li>
+	</script>
+	<script type="text/javascript">
+		tools.checkAccess();
+		
+		$('#near-by-page').live('pageinit', function () {
+			if (!navigator.geolocation) {
+				alert('Geolocation is not supported by current browser.');
+				return;
+			}
+
+			$('#store-map-canvas').gmap({ 'disableDefaultUI': true });
+			navigator.geolocation.getCurrentPosition(function (position) {
+				var storeUrlParams = 'lat=' + position.coords.latitude + '&lon=' + position.coords.longitude + '&radius=' + 10;
+				var categoryUrlParams = storeUrlParams + '&userId=' + tools.getUserId();
+				$.when(
+					$.getJSON(tools.ApiURI() + '/store/getneareststores?' + storeUrlParams),
+					$.getJSON(tools.ApiURI() + '/contest/nearestbycategory?' + categoryUrlParams)
+				).done(function (storeResponse, categoryResponse) {
+					//// Processes loaded stores.
+					var stores = storeResponse[0];
+					if (!stores || stores.length == 0) {
+						$('<li />', { 'html': '<h3>There are no stores within 10 miles with contests currently running.</h3>' })
+							.appendTo('#store-list');
+					} else {
+						$("#store-item-tmpl").tmpl(stores).appendTo("#store-list");
+						$.each(stores, function (storeIndex, store) {
+							$('#store-map-canvas').gmap('addMarker', {
+								'position': new google.maps.LatLng(store.latitude, store.longitude),
+								'bounds': true
+							}).click(function () {
+								$('#store-map-canvas').gmap('openInfoWindow', { 'content': store.description }, this);
+							});
+						});
+					}
+
+					//// Processes loaded categories.
+					var categories = categoryResponse[0];
+					if (!categories || categories.length == 0) {
+						$('<li />', { 'html': '<h3>There are no categories within 10 miles with contests currently running.</h3>' })
+							.appendTo('#category-list');
+					} else {
+						$("#category-item-tmpl").tmpl(categories).appendTo("#category-list");
+					}
+
+					$('#near-by-stores-page').attr('data-loaded', 'true').trigger('create');
+					$('#category-list').listview('refresh');
+					$('#store-list').listview('refresh');
+
+					//// Binds necessary events.
+					$('.ui-btn', $('#top-navigation')).click(function () {
+						$('#category-list-container').toggle();
+						$('#store-list-container').toggle();
+					});
+
+					$.mobile.loading('hide');
+				});
+			});
+		});
+
+		$('#near-by-page').live('pageshow', function () {
+			if ($('#near-by-page').attr('data-loaded') == 'false') {
+				$.mobile.loading('show');
+			} else {
+				$('#near-by-page').trigger('create');
+			}
+		});
+	</script>
+</body>
+</html>

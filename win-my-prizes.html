@@ -1,0 +1,100 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>Contest anywhere</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.mobile.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.mobile.structure.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.mobile.theme.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/application.css" />
+</head>
+<body>
+	<div id="win-my-prizes-page" data-role="page">
+		<header data-role="header">
+			<a href="#" data-ajax="false" data-rel="back" data-icon="back" data-theme="b" data-iconpos="notext" class="sign-out-btn">Back</a>
+			<h1>My prizes</h1>
+		</header>
+		<section data-role="content">
+			<ul id="prize-list" data-role="listview" data-inset="true">
+			</ul>
+		</section>
+		<footer data-role="footer" data-position="fixed">
+			<div data-role="navbar">
+				<ul>
+					<li>
+						<a href="index.html#play" data-ajax="false" data-iconpos="top" data-icon="grid">Play</a>
+					</li>
+					<li>
+						<a href="index.html#win" data-ajax="false" data-iconpos="top" data-icon="forward" class="ui-btn-active ui-state-persist">Win</a>
+					</li>
+					<li>
+						<a href="index.html#profile" data-ajax="false" data-iconpos="top" data-icon="info">Profile</a>
+					</li>
+				</ul>
+			</div>
+		</footer>
+	</div>
+
+	<script type="text/javascript" src="scripts/jquery.min.js"></script>
+	<script type="text/javascript" src="scripts/utils.js"></script>
+	<script type="text/javascript">
+		$(document).bind("mobileinit", function () {
+			$.support.cors = true;
+			$.mobile.allowCrossDomainPages = true;
+		});
+	</script>
+	<script type="text/javascript" src="scripts/jquery.mobile.min.js"></script>
+	<script type="text/javascript" src="scripts/detectmobilebrowser.js"></script>
+	<script type="text/javascript" src="scripts/jquery-tmpl.min.js"></script>
+	<script id="prize-item-tmpl" type="text/x-jquery-tmpl">
+		<li>
+			<h3>
+				<span>${prize.name}</span>
+				{{if prize.prizeTypeId}}			
+				<span>&nbsp;(${prize.prizeTypeId.type})</span>
+				{{/if}}
+			</h3>
+			<p class="ui-li-desc">
+				<img src="images/date_magnify.png" alt="" />
+				${$item.formatDate(date)}
+			</p>
+			<p class="ui-li-desc">
+				<img src="images/package.png" alt="" />
+				<strong>${contest.title}</strong>
+			</p>
+			<p class="ui-li-aside">
+				{{if $item.isClaimed(status)}}
+				<a href="win-claim-prize.html?id=${id}" data-ajax="false" data-theme="b" data-role="button" data-inline="true" data-mini="true">
+					Claim</a>
+				{{else}}
+				<span>Claimed</span>
+				{{/if}}
+			</p>
+		</li>
+	</script>
+	<script type="text/javascript">
+		tools.checkAccess();
+
+		$('#win-my-prizes-page').live('pageinit', function () {
+			$.getJSON(tools.ApiURI() + '/prize/userprizes?userId=' + tools.getUserId(), function (prizeFulfillment) {
+				$('#prize-item-tmpl').tmpl(prizeFulfillment, {
+					formatDate: function (dateValue) {
+						return new Date(dateValue).toLocaleDateString();
+					},
+					isClaimed: function (status) {
+						return status === 0;
+					}
+				}).appendTo('#prize-list');
+				$('#prize-list').listview('refresh').trigger('create');
+
+				$.mobile.loading('hide');
+			});
+		});
+
+		$('#win-my-prizes-page').live('pageshow', function () {
+			$.mobile.loading('show');
+		});
+	</script>
+</body>
+</html>

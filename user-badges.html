@@ -1,0 +1,83 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>Contest anywhere</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.mobile.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.mobile.structure.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.mobile.theme.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/application.css" />
+</head>
+<body>
+	<div id="user-badges-page" data-role="page">
+		<header data-role="header">
+			<a href="#" data-ajax="false" data-rel="back" data-icon="back" data-theme="b" data-iconpos="notext" class="sign-out-btn">Back</a>
+			<h1>My badges</h1>
+		</header>
+		<section data-role="content">
+			<ul id="badge-list" data-role="listview" data-inset="true">
+				<li data-role="list-divider">
+					<span>My badges</span>
+				</li>
+			</ul>
+		</section>
+		<footer data-role="footer" data-position="fixed">
+			<div data-role="navbar">
+				<ul>
+					<li>
+						<a href="index.html#play" data-ajax="false" data-iconpos="top" data-icon="grid">Play</a>
+					</li>
+					<li>
+						<a href="index.html#win" data-ajax="false" data-iconpos="top" data-icon="forward">Win</a>
+					</li>
+					<li>
+						<a href="index.html#profile" data-ajax="false" data-iconpos="top" data-icon="info">Profile</a>
+					</li>
+				</ul>
+			</div>
+		</footer>
+	</div>
+
+	<script type="text/javascript" src="scripts/utils.js"></script>
+	<script type="text/javascript" src="scripts/jquery.min.js"></script>
+	<script type="text/javascript">
+		$(document).bind("mobileinit", function () {
+			$.support.cors = true;
+			$.mobile.allowCrossDomainPages = true;
+		});
+	</script>
+	<script type="text/javascript" src="scripts/jquery.mobile.min.js"></script>
+	<script type="text/javascript" src="scripts/detectmobilebrowser.js"></script>
+	<script type="text/javascript" src="scripts/jquery-tmpl.min.js"></script>
+	<script id="badge-summary-tmpl" type="text/x-jquery-tmpl">
+		<li>
+			<span>You have ${count} badge(s)</span>
+		</li>
+	</script>
+	<script id="badge-item-tmpl" type="text/x-jquery-tmpl">
+		<li>{{if picture}}
+			<img src="${picture}" alt="${name}" class="ui-li-icon" />
+			{{else}}
+			<span style="padding: 0px 0px 0px 16px">&nbsp;</span>
+			{{/if}}
+			<span>${name}</span>
+		</li>
+	</script>
+	<script type="text/javascript">
+		tools.checkAccess();
+
+		$('#user-badges-page').live('pageinit', function () {
+			$.getJSON(tools.ApiURI() + '/badge/ofuser?userId=' + tools.getUserId(), function (badges) {
+				$('#badge-summary-tmpl').tmpl({ 'count': badges.length }).appendTo('#badge-list');
+				for (var i = 0; i < badges.length; i++) {
+					$.getJSON(tools.ApiURI() + '/badge/get?id=' + badges[i].badgeId, function (badge) {
+						$('#badge-item-tmpl').tmpl(badge).appendTo('#badge-list');
+						$('#badge-list').listview('refresh').trigger('create');
+					});
+				}
+			});
+		});
+	</script>
+</body>
+</html>

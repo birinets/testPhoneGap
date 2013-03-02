@@ -1,0 +1,157 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>Contest anywhere</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.mobile.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.mobile.structure.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.mobile.theme.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/application.css" />
+
+	<script type="text/javascript" src="scripts/jquery.min.js"></script>
+	<script type="text/javascript" src="scripts/utils.js"></script>
+	<script type="text/javascript">
+		$(document).bind("mobileinit", function () {
+			$.support.cors = true;
+			$.mobile.allowCrossDomainPages = true;
+		});
+	</script>
+	<script type="text/javascript" src="scripts/jquery.mobile.min.js"></script>
+	<script type="text/javascript" src="scripts/detectmobilebrowser.js"></script>
+	<script type="text/javascript" src="scripts/jquery-tmpl.min.js"></script>
+	<script id="claim-prize-tmpl" type="text/x-jquery-tmpl">
+		<li>
+			<h3>${contest.title}</h3>
+			{{each contest.questions}}		
+			<h3 class="text-red"><span>Q:</span> ${text}</h3>
+			<p>
+				${$item.rightAnswer(answers)}
+			</p>
+			{{/each}}
+		</li>
+		<li>
+			<h3><span>Your prize: </span>${prize.name}</h3>
+			<div data-role="fieldcontain">
+				<fieldset data-role="controlgroup">
+					<legend>Claim by entering your info:</legend>
+					<input type="radio" name="shipping-method" id="auto-shipping-method" class="custom" checked="checked" />
+					<label for="auto-shipping-method">Use my existing info</label>
+					<input type="radio" name="shipping-method" id="manual-shipping-method" class="custom" />
+					<label for="manual-shipping-method">Enter your info</label>
+				</fieldset>
+			</div>
+		</li>
+		<li data-role="fieldcontain" name="manual-shipping-data" style="display: none;">
+			<label for="shipping-info">Shipping info:</label>
+			<input type="text" id="shipping-info" placeholder="Shipping info" />
+
+		</li>
+		<li data-role="fieldcontain" name="manual-shipping-data" style="display: none;">
+			<label for="email-address">E-mail address:</label>
+			<input type="text" id="email-address" placeholder="E-mail address" />
+		</li>
+		<li>
+			<div data-role="collapsible" data-collapsed="false" data-theme="a" data-content-theme="d">
+				<h3>Terms &amp; Conditions</h3>
+				<span>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus tempor aliquam arcu at iaculis. Mauris
+					eu felis sed turpis varius mollis at ac ante. Praesent et congue mi. Proin at tellus lorem, vitae porttitor
+					est. Praesent a tortor dui. Nulla metus urna, luctus condimentum rutrum vitae, egestas nec velit. Fusce
+					vel lorem velit. Donec in risus est, eget ornare urna.</span>
+			</div>
+			<input type="checkbox" name="agree" id="agree-terms-conditions" required="required" />
+			<label for="agree-terms-conditions">I agree</label>
+		</li>
+		<li>
+			<div>
+				<a href="#" data-role="button" id="claim-prize-btn" data-theme="a" data-icon="check" class="ui-disabled">Claim</a>
+			</div>
+		</li>
+	</script>
+</head>
+<body>
+	<div id="claim-prize-page" data-role="page">
+		<header data-role="header">
+			<a href="index.html#play" data-ajax="false" data-rel="back" data-icon="back" data-theme="b" data-iconpos="notext">Back</a>
+			<h1>Claiming</h1>
+		</header>
+		<section data-role="content">
+			<ul id="claim-prize-list" data-role="listview" data-inset="true">
+				<li data-role="list-divider">Claim your prize</li>
+			</ul>
+		</section>
+		<a id="prize-claimed-btn" href="#prize-claimed-dialog" data-rel="dialog" data-transition="pop" style='display: none;'></a>
+	</div>
+	<div id="prize-claimed-dialog" data-role="page">
+		<header data-role="header" data-theme="d">
+			<h1>Prize claimed</h1>
+		</header>
+		<section data-role="content">
+			<h1>Prize is claimed!</h1>
+			<div class="ui-grid-solo">
+				<a href="win-my-prizes.html" data-ajax="false" data-role="button">OK</a>
+			</div>
+		</section>
+	</div>
+	<script type="text/javascript">
+		tools.checkAccess();
+
+		$('#claim-prize-page').live('pageinit', function () {
+			var parsedUrl = $.mobile.path.parseUrl(window.location.href);
+			var prizeFullId = parseInt(parsedUrl.search.replace('?', '').split('=')[1]);
+
+			$.getJSON(tools.ApiURI() + '/prize/get?id=' + prizeFullId, function (prizeFulfillment) {
+				$('#claim-prize-tmpl').tmpl(prizeFulfillment, {
+					rightAnswer: function (answers) {
+						var right = 'unknown';
+						if (answers) {
+							for (var i = 0; i < answers.length; i++) {
+								if (answers[i].isRight == true) {
+									right = answers[i].text;
+									break;
+								}
+							}
+						}
+
+						return right;
+					}
+				}).appendTo('#claim-prize-list');
+				$('#claim-prize-list').listview('refresh').trigger('create');
+
+				$('input[name=shipping-method]').click(function (e) {
+					if (e.target.id.indexOf('manual') > -1) {
+						$('li[name=manual-shipping-data]').fadeIn('fast', function () {
+							$('#claim-prize-list').listview('refresh');
+						});
+					} else {
+						$('li[name=manual-shipping-data]').fadeOut('fast', function () {
+							$('#claim-prize-list').listview('refresh');
+						});
+					}
+				});
+				
+				$('#agree-terms-conditions').click(function () {
+					$('#claim-prize-btn').toggleClass('ui-disabled');
+				});
+
+				//// Submits necessary data to the server and opens dialogs with corresponding information.
+				$('#claim-prize-btn').click(function () {
+					$.post(tools.ApiURI() + '/prize/post', {
+							userId: tools.getUserId(),
+							contestId: prizeFulfillment.contest.id,
+							prizeFulfillmentId: prizeFulfillment.id
+						}, function () {
+							$('#prize-claimed-btn').click();
+						});
+				});
+
+				$.mobile.loading('hide');
+			});
+		});
+
+		$('#claim-prize-page').live('pageshow', function () {
+			$.mobile.loading('show');
+		});
+	</script>
+</body>
+</html>

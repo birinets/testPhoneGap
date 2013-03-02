@@ -1,0 +1,178 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>Contest anywhere</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.mobile.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.mobile.structure.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.mobile.theme.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.jqplot.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/application.css" />
+</head>
+<body>
+	<div id="contest-page" data-role="page">
+		<header data-role="header">
+			<h1>Contest</h1>
+		</header>
+		<section id="contest-container" data-role="content">
+		</section>
+		<a id="badge-btn" data-role="button" href="badge.html" class="hidden" data-rel="dialog" data-transition="pop"></a>
+	</div>
+
+	<script type="text/javascript" src="scripts/utils.js"></script>
+	<script type="text/javascript" src="scripts/jquery.min.js"></script>
+	<script type="text/javascript">
+		$(document).bind("mobileinit", function () {
+			$.support.cors = true;
+			$.mobile.allowCrossDomainPages = true;
+		});
+	</script>
+	<script type="text/javascript" src="scripts/jquery.mobile.min.js"></script>
+	<script type="text/javascript" src="scripts/detectmobilebrowser.js"></script>
+	<script type="text/javascript" src="scripts/jquery-tmpl.min.js"></script>
+	<script id="contest-data-tmpl" type="text/x-jquery-tmpl">
+		{{each(qIndex, question) questions}}				
+		<div id="question-page-${question.id}" data-role="page">
+			<header data-role="header">
+				<h1>Contest</h1>
+			</header>
+			<section data-role="content">
+				<ul>
+					<li>
+						<label class="label text-bold">Title: </label>
+						<span>${title}</span>
+					</li>
+					{{if category}}
+					<li>
+						<label class="label text-bold">Category: </label>
+						<span>${category.name}</span>
+					</li>
+					{{/if}}
+					{{if closeDate}}
+					<li>
+						<label class="label text-bold">Time remaining: </label>
+						<span>${$item.remained(closeDate)}</span>
+					</li>
+					{{/if}}
+					{{if prize}}
+					<li>
+						<label class="label text-bold">Prize: </label>
+						<span>${prize.name}</span>
+					</li>
+					{{/if}}
+				</ul>
+				<div id="question-${question.id}" data-theme="b" data-content-theme="d">
+					<h3><span class="red">Q: </span>${text}</h3>
+					<fieldset data-role="controlgroup">
+						<legend></legend>
+						{{each(aIndex, answer) answers}}						
+						<input type="radio" name="question-${question.id}" id="answer-${answer.id}"
+							value="${answer.id}" contest="${id}" />
+						<label for="answer-${answer.id}">${answer.text}</label>
+						{{/each}}
+					</fieldset>
+				</div>
+				<div class="ui-grid-solo">
+					<div class="ui-block-a">
+						{{html $item.questionButton(qIndex, question)}}
+					</div>
+				</div>
+			</section>
+		</div>
+		{{/each}}		
+	</script>
+	<script type="text/javascript">
+		tools.checkAccess();
+
+		$('#contest-page').live('pageinit', function () {
+			var parsedUrl = $.mobile.path.parseUrl(window.location.href);
+			var contestId = parseInt(parsedUrl.search.replace('?', '').split('=')[1]);
+			navigator.geolocation.getCurrentPosition(function(position) {
+				var geoUrlParams = '&lat=' + position.coords.latitude + '&lon=' + position.coords.longitude;
+
+				$.ajaxSetup({
+					"error": function (jqXhr) {
+						alert(jqXhr.responseText);
+						$('#contest-data-tmpl').html(jqXhr.responseText);
+					}
+				});
+
+				$.getJSON(tools.ApiURI() + '/contest/?id=' + contestId + geoUrlParams, function(contest) {
+				$('#contest-data-tmpl').tmpl(contest, {
+					remained: function (closeDate) {
+						var remainedString = '';
+						var closeDateObj = new Date(closeDate);
+						var today = new Date();
+
+						//// Calculates full days value.
+						var fullDays = parseInt((closeDateObj - today) / 86400000);
+						if (fullDays > 0) {
+							remainedString += fullDays + ' days ';
+						}
+
+						//// Calculates full hours value.
+						var fullHours = parseInt((closeDateObj - today) / 3600000) - fullDays * 24;
+						if (fullHours > 0) {
+							remainedString += fullHours + ' hours ';
+						}
+
+						//// Calculates full minutes value.
+						var fullMinuters = parseInt((closeDateObj - today) / 60000) - fullHours * 60 - fullDays * 1440;
+						if (fullMinuters > 0) {
+							remainedString += fullMinuters + ' minutes';
+						}
+
+						return remainedString;
+					},
+					questionButton: function (qIndex) {
+						var questionCount = contest.questions.length - 1;
+						if (questionCount > qIndex) {
+							return '<a href="#question-page-' + contest.questions[qIndex + 1].id + '" data-role="button" data-transition="slide" data-theme="a">Next question</a>';
+						}
+
+						return '<a id="submit-result" contest="' + contest.id + '" href="#" data-role="button" data-theme="a">Submit</a>';
+					}
+				}).insertAfter('#contest-page');
+
+				//// Binds submit event to the button of the last question in a sequence of contest questions.
+				$('#submit-result').click(function (e) {
+					e.preventDefault();
+					var postData = { userId: tools.getUserId(), contestId: contest.id, answers: [] };
+					$('input[contest]:checked').each(function (index, el) {
+						postData.answers[index] = el.value;
+					});
+
+					$.post(tools.ApiURI() + '/vote', postData)
+						.success(function (data, textStatus, jqXhr) {
+							var nextUrl = 'conteststats.html?id=' + contest.id;
+							tools.handleBadge(jqXhr, nextUrl);
+						})
+						.error(function () {
+							alert('error!');
+						});
+				});
+
+				if (contest.questions && contest.questions.length > 0) {
+					$.each(contest.questions, function (questionIndex, question) {
+						$('#question-' + question.id).trigger('create');
+
+						if (questionIndex == 0) {
+							$.mobile.changePage('#question-page-' + question.id);
+						}
+					});
+				}
+
+				$.mobile.loading('hide');
+			});
+
+			$('#contest-statistics-btn').attr('href', 'conteststats.html?contest=' + contestId);
+		});
+		});
+
+		$('#contest-page').live('pageshow', function () {
+			$.mobile.loading('show');
+		});
+	</script>
+</body>
+</html>

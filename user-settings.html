@@ -1,0 +1,80 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>Contest anywhere</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.mobile.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.mobile.structure.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.mobile.theme.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/application.css" />
+</head>
+<body>
+	<div id="user-settings-page" data-role="page">
+		<header data-role="header">
+			<a href="#" data-ajax="false" data-rel="back" data-icon="back" data-theme="b" data-iconpos="notext" class="sign-out-btn">Back</a>
+			<h1>Settings</h1>
+		</header>
+		<section data-role="content">
+			<ul data-role="listview" data-inset="true">
+				<li data-role="list-divider">
+					<span>My settings</span>
+				</li>
+				<li data-role="fieldcontain">
+					<label for="gps-setting">Location preferences (GPS):</label>
+					<select id="gps-setting" data-role="slider">
+						<option value="off" selected="selected">Off</option>
+						<option value="on">On</option>
+					</select>
+				</li>
+				<li data-role="fieldcontain">
+					<label for="fb-share-setting">Share my winning contests to Facebook:</label>
+					<select id="fb-share-setting" data-role="slider">
+						<option value="off" selected="selected">Off</option>
+						<option value="on">On</option>
+					</select>
+				</li>
+			</ul>
+		</section>
+		<footer data-role="footer" data-position="fixed">
+			<div data-role="navbar">
+				<ul>
+					<li>
+						<a href="index.html#play" data-ajax="false" data-iconpos="top" data-icon="grid">Play</a>
+					</li>
+					<li>
+						<a href="index.html#win" data-ajax="false" data-iconpos="top" data-icon="forward">Win</a>
+					</li>
+					<li>
+						<a href="index.html#profile" data-ajax="false" data-iconpos="top" data-icon="info" class="ui-btn-active ui-state-persist">Profile</a>
+					</li>
+				</ul>
+			</div>
+		</footer>
+	</div>
+
+	<script type="text/javascript" src="scripts/jquery.min.js"></script>
+	<script type="text/javascript" src="scripts/utils.js"></script>
+	<script type="text/javascript">
+		$(document).bind("mobileinit", function () {
+			$.support.cors = true;
+			$.mobile.allowCrossDomainPages = true;
+		});
+	</script>
+	<script type="text/javascript" src="scripts/jquery.mobile.min.js"></script>
+	<script type="text/javascript" src="scripts/detectmobilebrowser.js"></script>
+	<script type="text/javascript">
+		tools.checkAccess();
+
+		$('#user-settings-page').live('pageinit', function () {
+			if (tools.isGpsEnabled()) {
+				$('#gps-setting').val('on').slider('refresh');
+			}
+
+			$('#gps-setting').change(function () {
+				window.localStorage.setItem('gps-status', $(this).val());
+			});
+		});
+	</script>
+</body>
+</html>

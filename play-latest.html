@@ -1,0 +1,132 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>Contest anywhere</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.mobile.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.mobile.structure.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.mobile.theme.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/application.css" />
+</head>
+<body>
+	<div id="latest" data-role="page">
+		<header data-role="header">
+			<a href="#" data-ajax="false" data-rel="back" data-icon="back" data-theme="b" data-iconpos="notext" class="sign-out-btn">Back</a>
+			<h1>Latest</h1>
+		</header>
+		<section data-role="content">
+			<ul id="contest-list" data-role="listview" data-inset="true">
+			</ul>
+		</section>
+		<footer data-role="footer" data-position="fixed">
+			<div data-role="navbar">
+				<ul>
+					<li>
+						<a href="index.html#play" data-ajax="false" data-iconpos="top" data-icon="grid" class="ui-btn-active ui-state-persist">Play</a>
+					</li>
+					<li>
+						<a href="index.html#win" data-ajax="false" data-iconpos="top" data-icon="forward">Win</a>
+					</li>
+					<li>
+						<a href="index.html#profile" data-ajax="false" data-iconpos="top" data-icon="info">Profile</a>
+					</li>
+				</ul>
+			</div>
+		</footer>
+	</div>
+
+	<script type="text/javascript" src="scripts/jquery.min.js"></script>
+	<script type="text/javascript" src="scripts/utils.js"></script>
+	<script type="text/javascript">
+		$(document).bind("mobileinit", function () {
+			$.support.cors = true;
+			$.mobile.allowCrossDomainPages = true;
+		});
+	</script>
+	<script type="text/javascript" src="scripts/jquery.mobile.min.js"></script>
+	<script type="text/javascript" src="scripts/detectmobilebrowser.js"></script>
+	<script type="text/javascript" src="scripts/jquery-tmpl.min.js"></script>
+	<script id="contest-element-tmpl" type="text/x-jquery-tmpl">
+		<li>
+			<a data-ajax="false" href="contest.html?id=${id}">
+				<h3>${title}</h3>
+				{{if categories.length}}
+				<p class="ui-li-desc">
+					<span class="text-bold">Categories: </span>		
+					<span>${$item.formatCategories($item.data)}</span>
+				</p>
+				{{/if}}
+				{{if prize}}
+				<p class="ui-li-desc">
+					<span class="text-bold">Prize: </span>
+					<span>${prize.name}</span>
+				</p>
+				{{/if}}
+				<p class="ui-li-desc">
+					<span class="text-bold">Published: </span>
+					<span>${$item.remained(openDate)} ago</span>
+				</p>
+			</a>
+		</li>
+	</script>
+	<script type="text/javascript">
+		tools.checkAccess();
+
+		$('#latest').live('pageinit', function () {
+			$.getJSON(tools.ApiURI() + '/contest/latest?userId=' + tools.getUserId() + '&days=7', function (contests) {
+				$('#contest-element-tmpl').tmpl(contests, {
+					formatDate: function (dateValue) {
+						return dateValue ? new Date(dateValue).toLocaleDateString() : 'Not specified';
+					},
+					remained: function (openDate) {
+						var passedAfterString = '';
+						var closeDateObj = new Date(openDate);
+						var today = new Date();
+
+						//// Calculates full days value.
+						var fullDays = parseInt((today - closeDateObj) / 86400000);
+						if (fullDays > 0) {
+							passedAfterString += fullDays + ' days ';
+						}
+
+						//// Calculates full hours value.
+						var fullHours = parseInt((today - closeDateObj) / 3600000) - fullDays * 24;
+						if (fullHours > 0) {
+							passedAfterString += fullHours + ' hours ';
+						}
+
+						//// Calculates full minutes value.
+						var fullMinuters = parseInt((today - closeDateObj) / 60000) - fullHours * 60 - fullDays * 1440;
+						if (fullMinuters > 0) {
+							passedAfterString += fullMinuters + ' minutes';
+						}
+
+						return passedAfterString;
+					},
+					formatCategories: function (contest) {
+						var categories = '';
+						if (contest.categories != null) {
+							for (var i = 0; i < contest.categories.length; i++) {
+								categories += contest.categories[i].name;
+								if (i < contest.categories.length - 1) {
+									categories += ', ';
+								}
+							}
+						}
+
+						return categories;
+					}
+				}).appendTo('#contest-list');
+
+				$("#contest-list").listview('refresh');
+				$.mobile.loading('hide');
+			});
+		});
+
+		$('#latest').live('pageshow', function () {
+			$.mobile.loading('show');
+		});
+	</script>
+</body>
+</html>

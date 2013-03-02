@@ -1,0 +1,32 @@
+.banners-wrapper {
+	/*width:100%;*/
+	box-sizing: border-box;
+	min-width:200px;
+	height:80px;
+	background:#ddd;
+	border-top:1px solid #aaa;
+	border-bottom:1px solid #aaa;
+}
+
+#swipeview-slider > div {
+	position:relative;
+	display:-webkit-box;
+	-webkit-box-orient:vertical;
+	-webkit-box-pack:center;
+	-webkit-box-align:center;
+	overflow:hidden;
+}
+
+#swipeview-slider span {
+	-webkit-box-sizing:border-box;
+	display:block;
+	text-align:center;
+	font-size:1.4em;
+	padding:0 20px;
+}
+
+p {
+	padding:20px;
+	margin:0;
+	font-size:1.4em;
+}

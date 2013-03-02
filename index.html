@@ -1,0 +1,398 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>Contest anywhere</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.mobile.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.mobile.structure.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.mobile.theme.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/application.css" />
+	<link rel="stylesheet" type="text/css" href="css/swipeview.css" />
+
+	<script type="text/javascript" src="scripts/swipeview.js"></script>
+	<script type="text/javascript" src="scripts/jquery.min.js"></script>
+	<script type="text/javascript" src="scripts/utils.js"></script>
+	<script type="text/javascript">
+		$(document).bind("mobileinit", function () {
+			$.support.cors = true;
+			$.mobile.allowCrossDomainPages = true;
+		});
+	</script>
+	<script type="text/javascript" src="scripts/jquery.mobile.min.js"></script>
+</head>
+<body>
+
+	<!-- Sign in -->
+	<div id="sign-in" data-role="page">
+		<header data-role="header">
+			<h1>Sign in</h1>
+		</header>
+		<section data-role="content">
+			<form id="sign-in-form" class="validate">
+				<label for="si-username">Username</label>
+				<input id="si-username" type="text" placeholder="Username or Email" required="required" />
+				<label for="si-password">Password</label>
+				<input id="si-password" type="password" placeholder="Password" required="required" />
+				<input type="checkbox" name="rememberme" id="si-remember-me" />
+				<label for="si-remember-me">Remember me</label>
+				<div class="ui-grid-a">
+					<div class="ui-block-a">
+						<a id="sign-in-action" href="#" data-role="button" data-theme="b" data-icon="arrow-r">Sign in</a>
+					</div>
+					<div class="ui-block-b">
+						<a href="#register" data-role="button">Register</a>
+					</div>
+				</div>
+			</form>
+		</section>
+		<a id="invalid-credentials-btn" href="#invalid-credentials" data-rel="dialog" data-transition="pop" style="display: none;">
+		</a>
+	</div>
+	<div id="invalid-credentials" data-role="page">
+		<header data-role="header" data-theme="d">
+			<h1>Invalid credentials</h1>
+		</header>
+		<section data-role="content">
+			<h1 id="invalid-credentials-message"></h1>
+			<div class="ui-grid-solo">
+				<a href="#sign-in" data-rel="back" data-role="button">OK</a>
+			</div>
+		</section>
+	</div>
+
+	<!-- Register -->
+	<div id="register" data-role="page">
+		<header data-role="header">
+			<h1>Register</h1>
+		</header>
+		<section data-role="content">
+			<form id="register-form">
+				<label for="username">User name</label>
+				<input id="username" name="UserName" type="text" placeholder="User name" required="required" />
+				<label for="email">Email</label>
+				<input id="email" name="Email" type="email" placeholder="Email" required="required" />
+				<label for="password">Password</label>
+				<input id="password" name="Password" type="password" placeholder="Password" required="required" />
+				<label for="confirm-password">Confirm password</label>
+				<input id="confirm-password" type="password" placeholder="Confirm password" required="required" />
+				<div data-role="collapsible" data-theme="a" data-content-theme="d">
+					<h3>Terms &amp; Conditions</h3>
+					<span>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus tempor aliquam arcu at iaculis. Mauris
+					eu felis sed turpis varius mollis at ac ante. Praesent et congue mi. Proin at tellus lorem, vitae porttitor
+					est. Praesent a tortor dui. Nulla metus urna, luctus condimentum rutrum vitae, egestas nec velit. Fusce
+					vel lorem velit. Donec in risus est, eget ornare urna.</span>
+				</div>
+				<input type="checkbox" id="agree-terms-conditions" required="required" />
+				<label for="agree-terms-conditions">I agree</label>
+				<div class="ui-grid-a">
+					<div class="ui-block-a">
+						<a href="#sign-in" data-role="button">Back</a>
+					</div>
+					<div class="ui-block-b">
+						<a id="action-register" href="#" data-role="button" data-theme="b" data-icon="arrow-r" class="ui-disabled">Register</a>
+					</div>
+				</div>
+			</form>
+		</section>
+	</div>
+
+	<!-- Play -->
+	<div id="play" data-role="page">
+		<header data-role="header" data-position="fixed">
+			<h1>Contest Anywhere</h1>
+			<a href="#" data-icon="forward" data-theme="b" data-iconpos="notext" class="sign-out-btn ui-btn-right">Sign Out</a>
+		</header>
+		<section data-role="content">
+			<div class="ui-grid-a">
+				<div class="ui-block-a">
+					<a href="#" data-icon="forward" data-inline="true" data-role="button" data-theme="a" data-iconpos="notext"></a>
+					<a href="#" data-icon="star" data-inline="true" data-role="button" data-theme="b" data-iconpos="notext"></a>
+					<a href="#" data-icon="arrow-r" data-inline="true" data-role="button" data-theme="c" data-iconpos="notext"></a>
+				</div>
+				<div class="ui-block-b">
+					<a href="#" data-role="button" data-theme="e" data-mini="true">Points: 120</a>
+				</div>
+			</div>
+			<div class="nav-glyphish ui-grid-a">
+				<div class="ui-block-a">
+					<a id="near-by-btn" data-ajax="false" href="play-nearby.html" data-role="button" data-iconpos="top" data-icon="custom">Nearby</a>
+					<a id="play-my-favorites-btn" data-ajax="false" href="play-my-favorites.html" data-role="button" data-iconpos="top" data-icon="custom">
+						My favorites</a>
+				</div>
+				<div class="ui-block-b">
+					<a id="by-name-btn" data-ajax="false" href="play-latest.html" data-role="button" data-iconpos="top" data-icon="custom">Latest</a>
+					<a id="featured-btn" data-ajax="false" href="play-featured.html" data-role="button" data-iconpos="top" data-icon="custom">Featured</a>
+				</div>
+			</div>
+		</section>
+		<section data-role="content">
+			<div id="play-banners-wrapper" class="banners-wrapper"></div>
+		</section>
+		<footer data-role="footer" data-position="fixed" data-id="home-navbar">
+			<div data-role="navbar">
+				<ul>
+					<li>
+						<a href="#play" data-transition="fade" class="ui-btn-active ui-state-persist" data-iconpos="top" data-icon="grid">Play</a>
+					</li>
+					<li>
+						<a href="#win" data-transition="fade" data-iconpos="top" data-icon="forward">Win</a>
+					</li>
+					<li>
+						<a href="#profile" data-transition="fade" data-iconpos="top" data-icon="info">Profile</a>
+					</li>
+				</ul>
+			</div>
+		</footer>
+	</div>
+
+	<!-- Win -->
+	<div id="win" data-role="page">
+		<header data-role="header" data-position="fixed">
+			<h1>Contest Anywhere</h1>
+			<a href="#" data-icon="forward" data-theme="b" data-iconpos="notext" class="sign-out-btn ui-btn-right">Sign Out</a>
+		</header>
+		<section data-role="content">
+			<div class="ui-grid-a">
+				<div class="ui-block-a">
+					<a href="#" data-icon="forward" data-inline="true" data-role="button" data-theme="a" data-iconpos="notext"></a>
+					<a href="#" data-icon="star" data-inline="true" data-role="button" data-theme="b" data-iconpos="notext"></a>
+					<a href="#" data-icon="arrow-r" data-inline="true" data-role="button" data-theme="c" data-iconpos="notext"></a>
+				</div>
+				<div class="ui-block-b">
+					<a href="#" data-role="button" data-theme="e" data-mini="true">Points: 120</a>
+				</div>
+			</div>
+			<div class="nav-glyphish ui-grid-a">
+				<div class="ui-block-a">
+					<a id="ongoing-btn" href="win-ongoing.html" data-ajax="false" data-role="button" data-iconpos="top" data-icon="custom">Ongoing</a>
+					<a id="won-btn" href="win-won.html" data-ajax="false" data-role="button" data-iconpos="top" data-icon="custom">Won</a>
+				</div>
+				<div class="ui-block-b">
+					<a id="my-prizes-btn" href="win-my-prizes.html" data-ajax="false" data-role="button" data-iconpos="top" data-icon="custom">My
+						Prizes</a>
+					<a id="leader-board-btn" href="win-leader-board.html" data-ajax="false" data-role="button" data-iconpos="top" data-icon="custom">
+						Leader Board</a>
+				</div>
+			</div>
+		</section>
+		<section data-role="content">
+			<div id="win-banners-wrapper" class="banners-wrapper"></div>
+		</section>
+		<footer data-role="footer" data-position="fixed" data-id="home-navbar">
+			<div data-role="navbar">
+				<ul>
+					<li>
+						<a href="#play" data-transition="fade" data-iconpos="top" data-icon="grid">Play</a>
+					</li>
+					<li>
+						<a href="#win" data-transition="fade" class="ui-btn-active ui-state-persist" data-iconpos="top" data-icon="forward">Win</a>
+					</li>
+					<li>
+						<a href="#profile" data-transition="fade" data-iconpos="top" data-icon="info">Profile</a>
+					</li>
+				</ul>
+			</div>
+		</footer>
+	</div>
+
+	<!-- Profile -->
+	<div id="profile" data-role="page">
+		<header data-role="header" data-position="fixed">
+			<h1>Contest Anywhere</h1>
+			<a href="#" data-icon="forward" data-theme="b" data-iconpos="notext" class="sign-out-btn ui-btn-right">Sign Out</a>
+		</header>
+		<section data-role="content">
+			<div class="ui-grid-a">
+				<div class="ui-block-a">
+					<a href="#" data-icon="forward" data-inline="true" data-role="button" data-theme="a" data-iconpos="notext"></a>
+					<a href="#" data-icon="star" data-inline="true" data-role="button" data-theme="b" data-iconpos="notext"></a>
+					<a href="#" data-icon="arrow-r" data-inline="true" data-role="button" data-theme="c" data-iconpos="notext"></a>
+				</div>
+				<div class="ui-block-b">
+					<a href="#" data-role="button" data-theme="e" data-mini="true">Points: 120</a>
+				</div>
+			</div>
+			<div class="nav-glyphish ui-grid-a">
+				<div class="ui-block-a">
+					<a id="info-btn" href="user-info.html" data-ajax="false" data-role="button" data-iconpos="top" data-icon="custom">Info</a>
+					<a id="settings-btn" href="user-settings.html" data-ajax="false" data-role="button" data-iconpos="top" data-icon="custom">Settings</a>
+				</div>
+				<div class="ui-block-b">
+					<a id="my-profile-my-favorites-btn" href="user-favorites.html" data-ajax="false" data-role="button" data-iconpos="top" data-icon="custom">
+						My favorites</a>
+					<a id="badges-btn" data-ajax="false" href="user-badges.html" data-role="button" data-iconpos="top" data-icon="custom">Badges</a>
+				</div>
+			</div>
+		</section>
+		<section data-role="content">
+			<div id="profile-banners-wrapper" class="banners-wrapper"></div>
+		</section>
+		<footer data-role="footer" data-position="fixed" data-id="home-navbar">
+			<div data-role="navbar">
+				<ul>
+					<li>
+						<a href="#play" data-transition="fade" data-iconpos="top" data-icon="grid">Play</a>
+					</li>
+					<li>
+						<a href="#win" data-transition="fade" data-iconpos="top" data-icon="forward">Win</a>
+					</li>
+					<li>
+						<a href="#profile" data-transition="fade" class="ui-btn-active ui-state-persist" data-iconpos="top" data-icon="info">Profile</a>
+					</li>
+				</ul>
+			</div>
+		</footer>
+	</div>
+
+	<script type="text/javascript" src="scripts/jquery-tmpl.min.js"></script>
+	<script type="text/javascript" src="scripts/detectmobilebrowser.js"></script>
+	<script type="text/javascript" src="scripts/utils.js"></script>
+	<script type="text/javascript" src="scripts/application.js"></script>
+	<script type="text/javascript">
+		document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
+	</script>
+	<script type="text/javascript">
+		$(document).delegate('#sign-in', 'pageinit', function () { pageLogin.init(); });
+		$(document).delegate('#register', 'pagebeforecreate', function () { pageRegister.init(); });
+
+		$(document).delegate('#profile', 'pagebeforecreate', function () { var pageProfile = new ContentPageBase({ id: 'profile' }); });
+	</script>
+	<script type="text/javascript">
+		$('#play').live('pageinit', function () { var pagePlay = new ContentPageBase({ id: 'play' }); });
+		$('#play').live('pageshow', function () {
+			//$('#near-by-btn').addClass('ui-disabled');
+			//if (tools.isGpsEnabled()) {
+			//	$('#near-by-btn').removeClass('ui-disabled');
+			//}
+			var playBanners = [
+				{
+					img: 'images/dummy-banners/dummy-240x60-Graph-plain.jpg',
+					width: 240,
+					height: 60
+				},
+				{
+					img: 'images/dummy-banners/dummy-240x60-NorthKorea-plain.jpg',
+					width: 240,
+					height: 60
+				},
+				{
+					img: 'images/dummy-banners/dummy-240x60-WallStreet-plain.jpg',
+					width: 240,
+					height: 60
+				}
+			];
+
+			initBannerSlider(playBanners, '#play-banners-wrapper');
+		});
+	</script>
+	<script type="text/javascript">
+		$('#win').live('pageshow', function () {
+			var playBanners = [
+				{
+					img: 'images/dummy-banners/dummy-240x60-Stadium-plain.jpg',
+					width: 240,
+					height: 60
+				},
+				{
+					img: 'images/dummy-banners/dummy-240x60-NorthKorea-plain.jpg',
+					width: 240,
+					height: 60
+				},
+				{
+					img: 'images/dummy-banners/dummy-240x60-WallStreet-plain.jpg',
+					width: 240,
+					height: 60
+				}
+			];
+
+			initBannerSlider(playBanners, '#win-banners-wrapper');
+		});
+	</script>
+	<script type="text/javascript">
+		$('#profile').live('pageshow', function () {
+			var playBanners = [
+				{
+					img: 'images/dummy-banners/dummy-240x60-Tax-plain.jpg',
+					width: 240,
+					height: 60
+				},
+				{
+					img: 'images/dummy-banners/dummy-240x60-Bag-plain.jpg',
+					width: 240,
+					height: 60
+				},
+				{
+					img: 'images/dummy-banners/dummy-240x60-Laptop-plain.jpg',
+					width: 240,
+					height: 60
+				}
+			];
+
+			initBannerSlider(playBanners, '#profile-banners-wrapper');
+		});
+	</script>
+	<script type="text/javascript">
+		function initBannerSlider(imageConfigs, selector) {
+			//// Initialization of banner carousel must occur on "PageShow" event. Otherwise width of the container will be 0 pixels.
+			var gallery,
+			    el,
+			    i,
+			    page,
+			    slides = imageConfigs;
+
+			gallery = new SwipeView(selector, { numberOfPages: slides.length });
+
+			// Load initial data
+			for (i = 0; i < 3; i++) {
+				page = i == 0 ? slides.length - 1 : i - 1;
+				el = document.createElement('img');
+				el.className = 'loading';
+				el.src = slides[page].img;
+				el.width = slides[page].width;
+				el.height = slides[page].height;
+				el.onload = function () { this.className = ''; };
+				gallery.masterPages[i].appendChild(el);
+
+				if (slides[page].desc) {
+					el = document.createElement('span');
+					el.innerHTML = slides[page].desc;
+					gallery.masterPages[i].appendChild(el);
+				}
+			}
+
+			gallery.onFlip(function () {
+				var el,
+				    upcoming,
+				    i;
+
+				for (i = 0; i < 3; i++) {
+					upcoming = gallery.masterPages[i].dataset.upcomingPageIndex;
+
+					if (upcoming != gallery.masterPages[i].dataset.pageIndex) {
+						el = gallery.masterPages[i].querySelector('img');
+						el.className = 'loading';
+						el.src = slides[upcoming].img;
+						el.width = slides[upcoming].width;
+						el.height = slides[upcoming].height;
+
+						el = gallery.masterPages[i].querySelector('span');
+						el.innerHTML = slides[upcoming].desc;
+					}
+				}
+			});
+
+			gallery.onMoveOut(function () {
+				gallery.masterPages[gallery.currentMasterPage].className = gallery.masterPages[gallery.currentMasterPage].className.replace(/(^|\s)swipeview-active(\s|$)/, '');
+			});
+
+			gallery.onMoveIn(function () {
+				var className = gallery.masterPages[gallery.currentMasterPage].className;
+				/(^|\s)swipeview-active(\s|$)/.test(className) || (gallery.masterPages[gallery.currentMasterPage].className = !className ? 'swipeview-active' : className + ' swipeview-active');
+			});
+		}
+	</script>
+</body>
+</html>
