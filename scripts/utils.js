@@ -47,9 +47,9 @@ var tools = (function () {
 
 	toolsDef.ApiURI = function () {
 
-		//return 'http://r1.contestanywhere.com/admin/api';
+		return 'http://r1.contestanywhere.com/admin/api';
 		//return 'http://rplakhuta.levi9.com/contest/api';
-		return '/contest/api';
+		//return '/contest/api';
 	};
 
 	return toolsDef;
